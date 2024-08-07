@@ -33,6 +33,7 @@ import SendButton from './SendButton';
 import FileRow from './Files/FileRow';
 import Mention from './Mention';
 import store from '~/store';
+import CallOverlay from './CallOverlay';
 
 const ChatForm = ({ index = 0 }) => {
   const submitButtonRef = useRef<HTMLButtonElement>(null);
@@ -47,6 +48,8 @@ const ChatForm = ({ index = 0 }) => {
   const [showMentionPopover, setShowMentionPopover] = useRecoilState(
     store.showMentionPopoverFamily(index),
   );
+
+  const eventTarget = useMemo(() => new EventTarget(), []); // Use useMemo to create the EventTarget once
 
   const chatDirection = useRecoilValue(store.chatDirection).toLowerCase();
   const isRTL = chatDirection === 'rtl';
@@ -94,6 +97,8 @@ const ChatForm = ({ index = 0 }) => {
   const assistantMap = useAssistantsMapContext();
   const { submitMessage, submitPrompt } = useSubmitMessage({ clearDraft });
 
+  const [showCallOverlay, setShowCallOverlay] = useRecoilState(store.showCallOverlay);
+
   const { endpoint: _endpoint, endpointType } = conversation ?? { endpoint: null };
   const endpoint = endpointType ?? _endpoint;
 
@@ -120,6 +125,10 @@ const ChatForm = ({ index = 0 }) => {
       methods.setValue('text', e.target.value, { shouldValidate: true });
     },
   });
+
+  const openCallOverlay = () => {
+    setShowCallOverlay(true);
+  };
 
   return (
     <form
@@ -189,6 +198,38 @@ const ChatForm = ({ index = 0 }) => {
                 )}
               />
             )}
+            <CallOverlay
+              eventTarget={eventTarget}
+              showCallOverlay={showCallOverlay}
+              disableInputs={disableInputs}
+              textAreaRef={textAreaRef}
+              methods={methods}
+              index={index}
+              automaticPlayback={automaticPlayback}
+              ask={submitMessage}
+            />
+
+            <button
+              onClick={openCallOverlay}
+              className="absolute bottom-1.5 right-20 flex h-[30px] w-[30px] items-center justify-center rounded-lg p-0.5 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700 md:bottom-3 md:right-20"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                strokeWidth="0"
+                stroke="currentColor"
+                className="size-10"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M12 5a7 7 0 0 0-7 7v1.17c.313-.11.65-.17 1-.17h2a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H6a3 3 0 0 1-3-3v-6a9 9 0 0 1 18 0v6a3 3 0 0 1-3 3h-2a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h2c.35 0 .687.06 1 .17V12a7 7 0 0 0-7-7Z"
+                  clipRule="evenodd"
+                ></path>
+              </svg>
+            </button>
             <AttachFile
               endpoint={_endpoint ?? ''}
               endpointType={endpointType}
