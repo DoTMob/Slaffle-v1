@@ -173,7 +173,8 @@ const SidePanel = ({
           <ResizablePanel
             tagName="nav"
             id="controls-nav"
-            aria-label="controls-nav"
+            aria-label="Controls"
+            role="region"
             collapsedSize={collapsedSize}
             defaultSize={defaultLayout[1]}
             collapsible={true}
