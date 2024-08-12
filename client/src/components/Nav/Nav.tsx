@@ -76,16 +76,16 @@ const Nav = ({ navVisible, setNavVisible }) => {
   }, [tags]);
   const { containerRef, moveToTop } = useNavScrolling<ConversationListResponse>({
     setShowLoading,
-    hasNextPage: searchQuery ? searchQueryRes?.hasNextPage : hasNextPage,
-    fetchNextPage: searchQuery ? searchQueryRes?.fetchNextPage : fetchNextPage,
-    isFetchingNextPage: searchQuery ? searchQueryRes?.isFetchingNextPage : isFetchingNextPage,
+    hasNextPage: searchQuery ? searchQueryRes.hasNextPage : hasNextPage,
+    fetchNextPage: searchQuery ? searchQueryRes.fetchNextPage : fetchNextPage,
+    isFetchingNextPage: searchQuery ? searchQueryRes.isFetchingNextPage : isFetchingNextPage,
   });
 
   const conversations = useMemo(
     () =>
-      (searchQuery ? searchQueryRes?.data : data)?.pages.flatMap((page) => page.conversations) ||
+      (searchQuery ? searchQueryRes.data : data)?.pages.flatMap((page) => page.conversations) ||
       [],
-    [data, searchQuery, searchQueryRes?.data],
+    [data, searchQuery, searchQueryRes.data],
   );
 
   const clearSearch = () => {
@@ -141,7 +141,7 @@ const Nav = ({ navVisible, setNavVisible }) => {
                 >
                   <nav
                     id="chat-history-nav"
-                    aria-label="chat-history-nav"
+                    aria-label="Chat History"
                     className="flex h-full w-full flex-col px-3 pb-3.5"
                   >
                     <div
