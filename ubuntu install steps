@@ -1,0 +1,89 @@
+1. Installation Script Overview
+The script will:
+
+Update the system packages.
+Install necessary dependencies (Docker, Docker Compose, Nginx).
+Clone the Slaffle-v1 repository.
+Set up environment variables.
+Configure Nginx.
+Start the application using Docker Compose.
+2. Creating the Installation Script
+Step 1: Update System and Install Dependencies
+bash
+_------------------_
+#!/bin/bash
+
+# Update and upgrade the system
+sudo apt-get update && sudo apt-get upgrade -y
+
+# Install necessary packages
+sudo apt-get install -y curl git nginx
+
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+
+# Install Docker Compose
+sudo apt-get install -y docker-compose
+Step 2: Clone the Repository and Set Up Environment Variables
+bash
+_----------_
+# Clone the Slaffle-v1 (LibreChat) repository
+git clone https://github.com/DoTMob/Slaffle-v1.git
+cd Slaffle-v1
+
+# Create an .env file with necessary environment variables
+cat <<EOT >> .env
+PORT=8000
+UID=$(id -u)
+GID=$(id -g)
+EOT
+Step 3: Configure Nginx
+This step assumes you're using either a domain or an IP address to serve the application.
+
+bash
+_----_
+# Replace 'yourdomain.com' with your actual domain or 'localhost' for local development
+DOMAIN=yourdomain.com
+
+# Configure Nginx
+sudo tee /etc/nginx/sites-available/$DOMAIN > /dev/null <<EOT
+server {
+    listen 80;
+    server_name $DOMAIN;
+
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+EOT
+
+# Enable the Nginx configuration
+sudo ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+Step 4: Run Docker Compose
+bash
+__-----------____
+# Start the Slaffle-v1 application using Docker Compose
+sudo docker-compose up -d
+3. Making the Script Executable
+Save the script to a file named install_slaffle.sh in your Slaffle-v1 directory.
+Make the script executable:
+bash
+___------__
+chmod +x install_slaffle.sh
+Run the script:
+bash
+Copy code
+./install_slaffle.sh
+4. Additional Notes
+Custom Domain/IP Address: The script uses a placeholder for the domain (yourdomain.com). Replace it with your actual domain or localhost if you’re running locally.
+Environment Variables: Adjust the .env file as needed to include other configurations specific to your deployment.
+SSL Configuration: If you need SSL, you can add Certbot steps into the script after the Nginx setup.
+
+
